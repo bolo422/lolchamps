@@ -5,93 +5,122 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Campeões do League of Legends</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold:    #c8aa6e;
+      --gold2:   #f0e6d2;
+      --gold3:   #a08a50;
+      --dark1:   #010a13;
+      --dark2:   #0a1428;
+      --dark3:   #1e2328;
+      --dark4:   #2c3137;
+      --tag-bg:  #1a2030;
     }
 
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #0a0a2e;
-      color: #c8aa6e;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--dark1);
+      color: var(--gold);
       min-height: 100vh;
     }
 
+    /* ─── HEADER ─────────────────────────────────── */
     header {
       text-align: center;
-      padding: 40px 20px 20px;
-      background: linear-gradient(180deg, #1a1a4e 0%, #0a0a2e 100%);
+      padding: 40px 20px 24px;
+      background: linear-gradient(180deg, #0a1428 0%, var(--dark1) 100%);
+      border-bottom: 1px solid #2a2a3a;
     }
-
     header h1 {
-      font-size: 2.5rem;
-      color: #c8aa6e;
+      font-size: clamp(1.6rem, 5vw, 2.8rem);
+      color: var(--gold);
       text-transform: uppercase;
-      letter-spacing: 3px;
-      text-shadow: 0 0 20px rgba(200, 170, 110, 0.3);
+      letter-spacing: 4px;
+      text-shadow: 0 0 30px rgba(200,170,110,.4);
+    }
+    #subtitle {
+      margin-top: 8px;
+      font-size: .9rem;
+      color: var(--gold3);
+      letter-spacing: 1px;
     }
 
-    header p {
-      margin-top: 10px;
-      font-size: 1rem;
-      color: #8c7a4e;
+    /* ─── CONTROLS ───────────────────────────────── */
+    #controls {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px 24px 0;
     }
 
-    #search-container {
-      text-align: center;
-      padding: 20px;
+    #search-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
     }
-
     #search {
       width: 100%;
-      max-width: 400px;
-      padding: 12px 20px;
-      border: 2px solid #c8aa6e;
-      border-radius: 8px;
-      background-color: #1a1a4e;
-      color: #c8aa6e;
-      font-size: 1rem;
+      max-width: 440px;
+      padding: 10px 18px;
+      border: 1.5px solid var(--gold3);
+      border-radius: 6px;
+      background: var(--dark2);
+      color: var(--gold2);
+      font-size: .95rem;
       outline: none;
-      transition: border-color 0.3s;
+      transition: border-color .2s, box-shadow .2s;
     }
+    #search::placeholder { color: var(--gold3); }
+    #search:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(200,170,110,.2); }
 
-    #search::placeholder {
-      color: #8c7a4e;
+    /* filter grid */
+    #filters {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 10px;
     }
-
-    #search:focus {
-      border-color: #f0e6d2;
-      box-shadow: 0 0 10px rgba(200, 170, 110, 0.3);
+    .filter-group { display: flex; flex-direction: column; gap: 4px; }
+    .filter-group label { font-size: .7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gold3); }
+    .filter-group select {
+      padding: 7px 10px;
+      border: 1.5px solid var(--dark4);
+      border-radius: 5px;
+      background: var(--dark2);
+      color: var(--gold);
+      font-size: .85rem;
+      cursor: pointer;
+      outline: none;
+      transition: border-color .2s;
     }
+    .filter-group select:focus { border-color: var(--gold3); }
 
-    #loading {
-      text-align: center;
-      padding: 60px 20px;
-      font-size: 1.2rem;
-      color: #8c7a4e;
+    #filter-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 12px;
+      flex-wrap: wrap;
     }
-
-    .spinner {
-      display: inline-block;
-      width: 40px;
-      height: 40px;
-      border: 4px solid #1a1a4e;
-      border-top: 4px solid #c8aa6e;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-bottom: 15px;
+    #count { font-size: .85rem; color: var(--gold3); }
+    #reset-btn {
+      padding: 6px 14px;
+      border: 1.5px solid var(--gold3);
+      border-radius: 5px;
+      background: transparent;
+      color: var(--gold3);
+      font-size: .8rem;
+      cursor: pointer;
+      letter-spacing: .5px;
+      transition: border-color .2s, color .2s;
     }
+    #reset-btn:hover { border-color: var(--gold); color: var(--gold); }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
+    /* ─── GRID ───────────────────────────────────── */
     #champions-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 20px;
-      padding: 20px 40px 60px;
+      grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+      gap: 16px;
+      padding: 20px 24px 60px;
       max-width: 1400px;
       margin: 0 auto;
     }
@@ -100,172 +129,416 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      background: linear-gradient(180deg, #1e1e50 0%, #12122e 100%);
-      border: 1px solid #2a2a5a;
+      background: linear-gradient(170deg, #1a2035 0%, #0d1120 100%);
+      border: 1px solid #2a2a3a;
       border-radius: 10px;
-      padding: 15px 10px;
-      transition: transform 0.2s, border-color 0.3s, box-shadow 0.3s;
-      cursor: pointer;
+      padding: 14px 10px 12px;
+      cursor: default;
+      transition: transform .2s, border-color .25s, box-shadow .25s;
+      position: relative;
+      overflow: hidden;
     }
-
     .champion-card:hover {
       transform: translateY(-5px);
-      border-color: #c8aa6e;
-      box-shadow: 0 8px 25px rgba(200, 170, 110, 0.15);
+      border-color: var(--gold3);
+      box-shadow: 0 10px 30px rgba(200,170,110,.12);
     }
+    .champion-card.hidden { display: none; }
 
     .champion-card img {
-      width: 100px;
-      height: 100px;
+      width: 86px;
+      height: 86px;
       border-radius: 50%;
-      border: 3px solid #2a2a5a;
-      transition: border-color 0.3s;
+      border: 2.5px solid #2a2a3a;
       object-fit: cover;
+      transition: border-color .25s;
     }
+    .champion-card:hover img { border-color: var(--gold3); }
 
-    .champion-card:hover img {
-      border-color: #c8aa6e;
-    }
-
-    .champion-card .name {
-      margin-top: 10px;
-      font-size: 0.9rem;
-      font-weight: 600;
+    .champ-name {
+      margin-top: 9px;
+      font-size: .88rem;
+      font-weight: 700;
       text-align: center;
-      color: #f0e6d2;
-      letter-spacing: 0.5px;
+      color: var(--gold2);
+      letter-spacing: .3px;
     }
-
-    .champion-card .title {
-      margin-top: 4px;
-      font-size: 0.7rem;
+    .champ-title {
+      margin-top: 3px;
+      font-size: .68rem;
       text-align: center;
-      color: #8c7a4e;
+      color: var(--gold3);
       font-style: italic;
     }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 8px;
+    }
+    .tag {
+      font-size: .62rem;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: var(--tag-bg);
+      border: 1px solid #2a3050;
+      color: #8ab4d4;
+      white-space: nowrap;
+      text-transform: capitalize;
+    }
+    .tag.resource { color: #a0e0a0; border-color: #2a4a2a; }
+    .tag.range    { color: #e0b080; border-color: #4a3a20; }
+    .tag.year     { color: #b0a0d0; border-color: #3a2a50; }
+
+    /* info rows below tags */
+    .meta-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-top: 8px;
+      width: 100%;
+    }
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: .65rem;
+      gap: 4px;
+    }
+    .meta-label { color: var(--gold3); white-space: nowrap; }
+    .meta-value { color: var(--gold2); text-align: right; word-break: break-word; }
+
+    /* ─── LOADING / ERROR ────────────────────────── */
+    #loading {
+      text-align: center;
+      padding: 80px 20px;
+      font-size: 1.1rem;
+      color: var(--gold3);
+    }
+    .spinner {
+      width: 38px; height: 38px;
+      border: 3px solid #1a2030;
+      border-top: 3px solid var(--gold);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     #error {
       text-align: center;
       padding: 60px 20px;
-      color: #e74c3c;
-      font-size: 1.1rem;
+      color: #e05050;
+      font-size: 1rem;
     }
+    .hidden { display: none !important; }
 
-    .hidden {
-      display: none !important;
-    }
-
-    @media (max-width: 600px) {
-      header h1 {
-        font-size: 1.5rem;
-      }
-
-      #champions-grid {
-        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-        gap: 12px;
-        padding: 15px 15px 40px;
-      }
-
-      .champion-card img {
-        width: 75px;
-        height: 75px;
-      }
+    /* ─── RESPONSIVE ─────────────────────────────── */
+    @media (max-width: 520px) {
+      #filters { grid-template-columns: 1fr 1fr; }
+      #champions-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 14px 12px 40px; }
+      .champion-card img { width: 70px; height: 70px; }
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>League of Legends</h1>
-    <p>Todos os Campeoes</p>
-  </header>
+<header>
+  <h1>League of Legends</h1>
+  <p id="subtitle">Carregando...</p>
+</header>
 
-  <div id="search-container">
-    <input type="text" id="search" placeholder="Buscar campeao...">
+<div id="controls">
+  <div id="search-wrap">
+    <input type="text" id="search" placeholder="Buscar campeão...">
   </div>
 
-  <div id="loading">
-    <div class="spinner"></div>
-    <p>Carregando campeoes...</p>
+  <div id="filters">
+    <div class="filter-group">
+      <label>Classe</label>
+      <select id="f-class"><option value="">Todas</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Recurso</label>
+      <select id="f-resource"><option value="">Todos</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Alcance</label>
+      <select id="f-range">
+        <option value="">Todos</option>
+        <option value="melee">Melee</option>
+        <option value="ranged">Ranged</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Gênero</label>
+      <select id="f-gender"><option value="">Todos</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Espécie</label>
+      <select id="f-species"><option value="">Todas</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Região</label>
+      <select id="f-region"><option value="">Todas</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Ano de lançamento</label>
+      <select id="f-year"><option value="">Todos</option></select>
+    </div>
   </div>
 
-  <div id="error" class="hidden"></div>
+  <div id="filter-actions">
+    <span id="count"></span>
+    <button id="reset-btn">Limpar filtros</button>
+  </div>
+</div>
 
-  <div id="champions-grid" class="hidden"></div>
+<div id="loading">
+  <div class="spinner"></div>
+  <p>Carregando campeões...</p>
+</div>
 
-  <script>
-    const VERSIONS_URL = 'https://ddragon.leagueoflegends.com/api/versions.json';
+<div id="error" class="hidden"></div>
+<div id="champions-grid" class="hidden"></div>
 
-    async function fetchChampions() {
-      try {
-        // 1. Buscar a versao mais recente
-        const versionsRes = await fetch(VERSIONS_URL);
-        const versions = await versionsRes.json();
-        const latestVersion = versions[0];
+<script>
+  // ─── Mapeamento de classe/tag para PT-BR ─────────────────
+  const CLASS_LABELS = {
+    fighter:   'Lutador',
+    mage:      'Mago',
+    assassin:  'Assassino',
+    marksman:  'Atirador',
+    support:   'Suporte',
+    tank:      'Tank',
+  };
 
-        // 2. Buscar dados de todos os campeoes
-        const championsUrl = `https://ddragon.leagueoflegends.com/cdn/${latestVersion}/data/pt_BR/champion.json`;
-        const championsRes = await fetch(championsUrl);
-        const championsData = await championsRes.json();
+  const RESOURCE_LABELS = {
+    'Mana':           'Mana',
+    'Energy':         'Energia',
+    'None':           'Nenhum',
+    'Rage':           'Fúria',
+    'Courage':        'Coragem',
+    'Shield':         'Escudo',
+    'Bloodthirst':    'Sede de Sangue',
+    'Ferocity':       'Ferocidade',
+    'Heat':           'Calor',
+    'Grit':           'Tenacidade',
+    'Flow':           'Fluxo',
+    'Fury':           'Fúria',
+    'Wind':           'Vento',
+    'Moonlight':      'Luar',
+    'Soul Unbound':   'Alma Livre',
+    'Bloodwell':      'Poço de Sangue',
+    'Crimson Rush':   'Sede Carmesim',
+  };
 
-        // 3. Transformar em array e ordenar alfabeticamente
-        const champions = Object.values(championsData.data);
-        champions.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+  function labelResource(raw) {
+    return RESOURCE_LABELS[raw] || raw;
+  }
 
-        // 4. Renderizar na pagina
-        renderChampions(champions, latestVersion);
+  function labelClass(raw) {
+    return CLASS_LABELS[raw] || raw;
+  }
 
-        // 5. Atualizar contagem
-        document.querySelector('header p').textContent =
-          `Todos os Campeoes (${champions.length}) — Patch ${latestVersion}`;
+  // Campeões com range <= 325 são melee
+  function rangeType(attackRange) {
+    return attackRange <= 325 ? 'melee' : 'ranged';
+  }
 
-      } catch (err) {
-        console.error(err);
-        document.getElementById('loading').classList.add('hidden');
-        const errorDiv = document.getElementById('error');
-        errorDiv.classList.remove('hidden');
-        errorDiv.textContent = 'Erro ao carregar os campeoes. Verifique sua conexao e tente novamente.';
-      }
-    }
+  // ─── Estado global ────────────────────────────────────────
+  let allChampions = [];
 
-    function renderChampions(champions, version) {
-      const grid = document.getElementById('champions-grid');
-      grid.innerHTML = '';
+  // ─── Fetch e montagem ─────────────────────────────────────
+  async function init() {
+    try {
+      const [versionsRes, metaRes] = await Promise.all([
+        fetch('https://ddragon.leagueoflegends.com/api/versions.json'),
+        fetch('champions-meta.json'),
+      ]);
 
-      champions.forEach(champ => {
-        const imgUrl = `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${champ.image.full}`;
+      const versions = await versionsRes.json();
+      const meta     = await metaRes.json();
+      const patch    = versions[0];
 
-        const card = document.createElement('div');
-        card.className = 'champion-card';
-        card.setAttribute('data-name', champ.name.toLowerCase());
+      const champRes  = await fetch(`https://ddragon.leagueoflegends.com/cdn/${patch}/data/pt_BR/champion.json`);
+      const champData = await champRes.json();
 
-        card.innerHTML = `
-          <img src="${imgUrl}" alt="${champ.name}" loading="lazy">
-          <span class="name">${champ.name}</span>
-          <span class="title">${champ.title}</span>
-        `;
+      const rawChamps = Object.values(champData.data);
+      rawChamps.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
 
-        grid.appendChild(card);
+      allChampions = rawChamps.map(c => {
+        const m = meta[c.id] || {};
+        return {
+          id:          c.id,
+          name:        c.name,
+          title:       c.title,
+          imgUrl:      `https://ddragon.leagueoflegends.com/cdn/${patch}/img/champion/${c.image.full}`,
+          classes:     (c.tags || []).map(t => t.toLowerCase()),
+          resource:    c.partype || 'None',
+          range:       rangeType(c.stats?.attackrange ?? 0),
+          gender:      m.gender      || '—',
+          species:     m.species     || '—',
+          region:      m.region      || '—',
+          releaseYear: m.releaseYear || '—',
+        };
       });
+
+      buildFilterOptions();
+      renderAll();
+
+      document.getElementById('subtitle').textContent =
+        `${allChampions.length} campeões — Patch ${patch}`;
 
       document.getElementById('loading').classList.add('hidden');
-      grid.classList.remove('hidden');
+      document.getElementById('champions-grid').classList.remove('hidden');
+
+    } catch (err) {
+      console.error(err);
+      document.getElementById('loading').classList.add('hidden');
+      const el = document.getElementById('error');
+      el.classList.remove('hidden');
+      el.textContent = 'Erro ao carregar os dados. Verifique sua conexão e recarregue a página.';
     }
+  }
 
-    // Filtro de busca
-    document.getElementById('search').addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase().trim();
-      const cards = document.querySelectorAll('.champion-card');
+  // ─── Popula os <select> dinamicamente ────────────────────
+  function buildFilterOptions() {
+    const classes   = new Set();
+    const resources = new Set();
+    const genders   = new Set();
+    const species   = new Set();
+    const regions   = new Set();
+    const years     = new Set();
 
-      cards.forEach(card => {
-        const name = card.getAttribute('data-name');
-        card.style.display = name.includes(query) ? '' : 'none';
-      });
+    allChampions.forEach(c => {
+      c.classes.forEach(cl => classes.add(cl));
+      resources.add(c.resource);
+      if (c.gender      !== '—') genders.add(c.gender);
+      if (c.species     !== '—') species.add(c.species);
+      if (c.region      !== '—') regions.add(c.region);
+      if (c.releaseYear !== '—') years.add(c.releaseYear);
     });
 
-    // Iniciar
-    fetchChampions();
-  </script>
+    populate('f-class',    [...classes].sort(),              labelClass);
+    populate('f-resource', [...resources].sort(),            labelResource);
+    populate('f-gender',   [...genders].sort());
+    populate('f-species',  [...species].sort());
+    populate('f-region',   [...regions].sort());
+    populate('f-year',     [...years].sort((a, b) => a - b), y => String(y));
+  }
 
+  function populate(id, values, labelFn = v => v) {
+    const sel = document.getElementById(id);
+    values.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v;
+      opt.textContent = labelFn(v);
+      sel.appendChild(opt);
+    });
+  }
+
+  // ─── Render inicial ───────────────────────────────────────
+  function renderAll() {
+    const grid = document.getElementById('champions-grid');
+    grid.innerHTML = '';
+
+    allChampions.forEach(c => {
+      const card = document.createElement('div');
+      card.className = 'champion-card';
+      card.dataset.name     = c.name.toLowerCase();
+      card.dataset.classes  = c.classes.join(',');
+      card.dataset.resource = c.resource;
+      card.dataset.range    = c.range;
+      card.dataset.gender   = c.gender;
+      card.dataset.species  = c.species;
+      card.dataset.region   = c.region;
+      card.dataset.year     = c.releaseYear;
+
+      const classTags = c.classes
+        .map(cl => `<span class="tag">${labelClass(cl)}</span>`)
+        .join('');
+
+      card.innerHTML = `
+        <img src="${c.imgUrl}" alt="${c.name}" loading="lazy">
+        <div class="champ-name">${c.name}</div>
+        <div class="champ-title">${c.title}</div>
+        <div class="tags">
+          ${classTags}
+          <span class="tag resource">${labelResource(c.resource)}</span>
+          <span class="tag range">${c.range === 'melee' ? 'Melee' : 'Ranged'}</span>
+          <span class="tag year">${c.releaseYear}</span>
+        </div>
+        <div class="meta-rows">
+          <div class="meta-row">
+            <span class="meta-label">Gênero</span>
+            <span class="meta-value">${c.gender}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Espécie</span>
+            <span class="meta-value">${c.species}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Região</span>
+            <span class="meta-value">${c.region}</span>
+          </div>
+        </div>
+      `;
+
+      grid.appendChild(card);
+    });
+
+    applyFilters();
+  }
+
+  // ─── Filtragem ────────────────────────────────────────────
+  function applyFilters() {
+    const q        = document.getElementById('search').value.toLowerCase().trim();
+    const fClass   = document.getElementById('f-class').value;
+    const fRes     = document.getElementById('f-resource').value;
+    const fRange   = document.getElementById('f-range').value;
+    const fGender  = document.getElementById('f-gender').value;
+    const fSpecies = document.getElementById('f-species').value;
+    const fRegion  = document.getElementById('f-region').value;
+    const fYear    = document.getElementById('f-year').value;
+
+    let visible = 0;
+    document.querySelectorAll('.champion-card').forEach(card => {
+      const show =
+        (!q        || card.dataset.name.includes(q)) &&
+        (!fClass   || card.dataset.classes.split(',').includes(fClass)) &&
+        (!fRes     || card.dataset.resource === fRes) &&
+        (!fRange   || card.dataset.range    === fRange) &&
+        (!fGender  || card.dataset.gender   === fGender) &&
+        (!fSpecies || card.dataset.species  === fSpecies) &&
+        (!fRegion  || card.dataset.region   === fRegion) &&
+        (!fYear    || String(card.dataset.year) === fYear);
+
+      card.classList.toggle('hidden', !show);
+      if (show) visible++;
+    });
+
+    document.getElementById('count').textContent =
+      `${visible} campeão${visible !== 1 ? 'ões' : ''} encontrado${visible !== 1 ? 's' : ''}`;
+  }
+
+  function resetFilters() {
+    ['f-class','f-resource','f-range','f-gender','f-species','f-region','f-year']
+      .forEach(id => { document.getElementById(id).value = ''; });
+    document.getElementById('search').value = '';
+    applyFilters();
+  }
+
+  // ─── Event listeners ─────────────────────────────────────
+  document.getElementById('search').addEventListener('input', applyFilters);
+  ['f-class','f-resource','f-range','f-gender','f-species','f-region','f-year']
+    .forEach(id => document.getElementById(id).addEventListener('change', applyFilters));
+  document.getElementById('reset-btn').addEventListener('click', resetFilters);
+
+  // ─── Start ───────────────────────────────────────────────
+  init();
+</script>
 </body>
 </html>
