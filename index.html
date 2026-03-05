@@ -27,6 +27,7 @@
 
     /* ─── HEADER ─────────────────────────────────── */
     header {
+      position: relative;
       text-align: center;
       padding: 40px 20px 24px;
       background: linear-gradient(180deg, #0a1428 0%, var(--dark1) 100%);
@@ -44,6 +45,34 @@
       font-size: .9rem;
       color: var(--gold3);
       letter-spacing: 1px;
+    }
+
+    /* ─── LANGUAGE SWITCHER ──────────────────────── */
+    #lang-switcher {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .lang-btn {
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1.5px solid var(--dark4);
+      background: var(--dark2);
+      color: var(--gold3);
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .5px;
+      cursor: pointer;
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .lang-btn:hover { border-color: var(--gold3); color: var(--gold); }
+    .lang-btn.active {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: #1a2035;
     }
 
     /* ─── CONTROLS ───────────────────────────────── */
@@ -237,6 +266,7 @@
 
     /* ─── RESPONSIVE ─────────────────────────────── */
     @media (max-width: 520px) {
+      #lang-switcher { top: 10px; right: 10px; }
       #filters { grid-template-columns: 1fr 1fr; }
       #champions-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 14px 12px 40px; }
       .champion-card img { width: 70px; height: 70px; }
@@ -246,113 +276,257 @@
 <body>
 
 <header>
+  <div id="lang-switcher">
+    <button class="lang-btn active" data-lang="pt-BR">PT</button>
+    <button class="lang-btn"        data-lang="en-US">EN</button>
+  </div>
   <h1>League of Legends</h1>
-  <p id="subtitle">Carregando...</p>
+  <p id="subtitle"></p>
 </header>
 
 <div id="controls">
   <div id="search-wrap">
-    <input type="text" id="search" placeholder="Buscar campeão...">
+    <input type="text" id="search">
   </div>
 
   <div id="filters">
     <div class="filter-group">
-      <label>Classe</label>
-      <select id="f-class"><option value="">Todas</option></select>
+      <label data-i18n="label.class"></label>
+      <select id="f-class"></select>
     </div>
     <div class="filter-group">
-      <label>Recurso</label>
-      <select id="f-resource"><option value="">Todos</option></select>
+      <label data-i18n="label.resource"></label>
+      <select id="f-resource"></select>
     </div>
     <div class="filter-group">
-      <label>Alcance</label>
+      <label data-i18n="label.range"></label>
       <select id="f-range">
-        <option value="">Todos</option>
-        <option value="melee">Melee</option>
-        <option value="ranged">Ranged</option>
+        <option value="" data-i18n="filter.all-f"></option>
+        <option value="Melee">Melee</option>
+        <option value="Ranged">Ranged</option>
       </select>
     </div>
     <div class="filter-group">
-      <label>Gênero</label>
-      <select id="f-gender"><option value="">Todos</option></select>
+      <label data-i18n="label.gender"></label>
+      <select id="f-gender"></select>
     </div>
     <div class="filter-group">
-      <label>Espécie</label>
-      <select id="f-species"><option value="">Todas</option></select>
+      <label data-i18n="label.species"></label>
+      <select id="f-species"></select>
     </div>
     <div class="filter-group">
-      <label>Região</label>
-      <select id="f-region"><option value="">Todas</option></select>
+      <label data-i18n="label.region"></label>
+      <select id="f-region"></select>
     </div>
     <div class="filter-group">
-      <label>Ano de lançamento</label>
-      <select id="f-year"><option value="">Todos</option></select>
+      <label data-i18n="label.year"></label>
+      <select id="f-year"></select>
     </div>
   </div>
 
   <div id="filter-actions">
     <span id="count"></span>
-    <button id="reset-btn">Limpar filtros</button>
+    <button id="reset-btn" data-i18n="btn.reset"></button>
   </div>
 </div>
 
 <div id="loading">
   <div class="spinner"></div>
-  <p>Carregando campeões...</p>
+  <p data-i18n="msg.loading"></p>
 </div>
 
 <div id="error" class="hidden"></div>
 <div id="champions-grid" class="hidden"></div>
 
 <script>
-  // ─── Mapeamento de classe/tag para PT-BR ─────────────────
-  const CLASS_LABELS = {
-    fighter:   'Lutador',
-    mage:      'Mago',
-    assassin:  'Assassino',
-    marksman:  'Atirador',
-    support:   'Suporte',
-    tank:      'Tank',
+  // ─── i18n strings ─────────────────────────────────────────
+  const STRINGS = {
+    'pt-BR': {
+      'page.title':        'Campeões do League of Legends',
+      'subtitle':          (n, p) => `${n} campeões — Patch ${p}`,
+      'msg.loading':       'Carregando campeões...',
+      'msg.error':         'Erro ao carregar os dados. Verifique sua conexão e recarregue a página.',
+      'search.placeholder':'Buscar campeão...',
+      'label.class':       'Classe',
+      'label.resource':    'Recurso',
+      'label.range':       'Alcance',
+      'label.gender':      'Gênero',
+      'label.species':     'Espécie',
+      'label.region':      'Região',
+      'label.year':        'Ano de lançamento',
+      'filter.all-m':      'Todos',
+      'filter.all-f':      'Todas',
+      'btn.reset':         'Limpar filtros',
+      'count':             (n) => `${n} campeão${n !== 1 ? 'ões' : ''} encontrado${n !== 1 ? 's' : ''}`,
+      'card.gender':       'Gênero',
+      'card.species':      'Espécie',
+      'card.region':       'Região',
+      // Resource labels
+      'res.Mana':          'Mana',
+      'res.Energy':        'Energia',
+      'res.None':          'Nenhum',
+      'res.Rage':          'Fúria',
+      'res.Fury':          'Fúria',
+      'res.Courage':       'Coragem',
+      'res.Shield':        'Escudo',
+      'res.Ferocity':      'Ferocidade',
+      'res.Heat':          'Calor',
+      'res.Grit':          'Tenacidade',
+      'res.Flow':          'Fluxo',
+      'res.Crimson Rush':  'Sede Carmesim',
+      'res.Blood Well':    'Poço de Sangue',
+      // Class labels
+      'cls.fighter':       'Lutador',
+      'cls.mage':          'Mago',
+      'cls.assassin':      'Assassino',
+      'cls.marksman':      'Atirador',
+      'cls.support':       'Suporte',
+      'cls.tank':          'Tank',
+    },
+    'en-US': {
+      'page.title':        'League of Legends Champions',
+      'subtitle':          (n, p) => `${n} champions — Patch ${p}`,
+      'msg.loading':       'Loading champions...',
+      'msg.error':         'Failed to load data. Check your connection and reload the page.',
+      'search.placeholder':'Search champion...',
+      'label.class':       'Class',
+      'label.resource':    'Resource',
+      'label.range':       'Range',
+      'label.gender':      'Gender',
+      'label.species':     'Species',
+      'label.region':      'Region',
+      'label.year':        'Release year',
+      'filter.all-m':      'All',
+      'filter.all-f':      'All',
+      'btn.reset':         'Clear filters',
+      'count':             (n) => `${n} champion${n !== 1 ? 's' : ''} found`,
+      'card.gender':       'Gender',
+      'card.species':      'Species',
+      'card.region':       'Region',
+      // Resource labels (no translation needed — kept as-is)
+      'res.Mana':          'Mana',
+      'res.Energy':        'Energy',
+      'res.None':          'None',
+      'res.Rage':          'Rage',
+      'res.Fury':          'Fury',
+      'res.Courage':       'Courage',
+      'res.Shield':        'Shield',
+      'res.Ferocity':      'Ferocity',
+      'res.Heat':          'Heat',
+      'res.Grit':          'Grit',
+      'res.Flow':          'Flow',
+      'res.Crimson Rush':  'Crimson Rush',
+      'res.Blood Well':    'Blood Well',
+      // Class labels
+      'cls.fighter':       'Fighter',
+      'cls.mage':          'Mage',
+      'cls.assassin':      'Assassin',
+      'cls.marksman':      'Marksman',
+      'cls.support':       'Support',
+      'cls.tank':          'Tank',
+    },
   };
 
-  const RESOURCE_LABELS = {
-    'Mana':           'Mana',
-    'Energy':         'Energia',
-    'None':           'Nenhum',
-    'Rage':           'Fúria',
-    'Courage':        'Coragem',
-    'Shield':         'Escudo',
-    'Bloodthirst':    'Sede de Sangue',
-    'Ferocity':       'Ferocidade',
-    'Heat':           'Calor',
-    'Grit':           'Tenacidade',
-    'Flow':           'Fluxo',
-    'Fury':           'Fúria',
-    'Wind':           'Vento',
-    'Moonlight':      'Luar',
-    'Soul Unbound':   'Alma Livre',
-    'Bloodwell':      'Poço de Sangue',
-    'Crimson Rush':   'Sede Carmesim',
-  };
+  // ─── Language state ───────────────────────────────────────
+  let currentLang = 'pt-BR';
 
-  function labelResource(raw) {
-    return RESOURCE_LABELS[raw] || raw;
+  function t(key, ...args) {
+    const val = STRINGS[currentLang][key] ?? STRINGS['en-US'][key] ?? key;
+    return typeof val === 'function' ? val(...args) : val;
   }
 
-  function labelClass(raw) {
-    return CLASS_LABELS[raw] || raw;
+  function labelResource(raw) { return t(`res.${raw}`) || raw; }
+  function labelClass(raw)    { return t(`cls.${raw.toLowerCase()}`) || raw; }
+
+  // ─── Apply i18n to the static DOM ────────────────────────
+  function applyStaticStrings() {
+    document.documentElement.lang = currentLang;
+    document.title = t('page.title');
+    document.getElementById('search').placeholder = t('search.placeholder');
+
+    // elements with data-i18n attribute
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      const str = t(key);
+      if (typeof str === 'string') el.textContent = str;
+    });
+
+    // update lang-btn active state
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === currentLang);
+    });
   }
 
-  // Campeões com range <= 325 são melee
-  function rangeType(attackRange) {
-    return attackRange <= 325 ? 'melee' : 'ranged';
+  // ─── Rebuild filter <select> labels after lang switch ────
+  function rebuildFilterLabels() {
+    // f-class: rebuild options with translated labels
+    const fClass = document.getElementById('f-class');
+    const prevClass = fClass.value;
+    fClass.innerHTML = `<option value="">${t('filter.all-m')}</option>`;
+    [...classSet].sort().forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v;
+      opt.textContent = labelClass(v);
+      fClass.appendChild(opt);
+    });
+    fClass.value = prevClass;
+
+    // f-resource: rebuild options with translated labels
+    const fRes = document.getElementById('f-resource');
+    const prevRes = fRes.value;
+    fRes.innerHTML = `<option value="">${t('filter.all-m')}</option>`;
+    [...resourceSet].sort().forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v;
+      opt.textContent = labelResource(v);
+      fRes.appendChild(opt);
+    });
+    fRes.value = prevRes;
+
+    // f-range "all" option text
+    document.querySelector('#f-range option[value=""]').textContent = t('filter.all-f');
+
+    // f-gender, f-species, f-region, f-year: "all" option only
+    [
+      ['f-gender',  'filter.all-m'],
+      ['f-species', 'filter.all-f'],
+      ['f-region',  'filter.all-f'],
+      ['f-year',    'filter.all-m'],
+    ].forEach(([id, key]) => {
+      document.querySelector(`#${id} option[value=""]`).textContent = t(key);
+    });
+  }
+
+  // ─── Update card labels after lang switch ────────────────
+  function updateCardLabels() {
+    document.querySelectorAll('.champion-card').forEach(card => {
+      // class tags
+      card.querySelectorAll('.tag[data-cls]').forEach(tag => {
+        tag.textContent = labelClass(tag.dataset.cls);
+      });
+      // resource tag
+      const resTag = card.querySelector('.tag.resource');
+      if (resTag) resTag.textContent = labelResource(resTag.dataset.res);
+      // meta-row labels
+      card.querySelectorAll('.meta-label[data-i18n]').forEach(el => {
+        el.textContent = t(el.dataset.i18n);
+      });
+    });
+
+    // update count text
+    const visible = document.querySelectorAll('.champion-card:not(.hidden)').length;
+    document.getElementById('count').textContent = t('count', visible);
   }
 
   // ─── Estado global ────────────────────────────────────────
   let allChampions = [];
+  let classSet    = new Set();
+  let resourceSet = new Set();
+  let currentPatch = '';
 
-  // ─── Fetch e montagem ─────────────────────────────────────
+  // ─── Fetch ────────────────────────────────────────────────
   async function init() {
+    applyStaticStrings();
     try {
       const [versionsRes, metaRes] = await Promise.all([
         fetch('https://ddragon.leagueoflegends.com/api/versions.json'),
@@ -361,9 +535,12 @@
 
       const versions = await versionsRes.json();
       const meta     = await metaRes.json();
-      const patch    = versions[0];
+      currentPatch   = versions[0];
 
-      const champRes  = await fetch(`https://ddragon.leagueoflegends.com/cdn/${patch}/data/pt_BR/champion.json`);
+      // Fetch champion names in pt-BR for display, and en-US for fallback
+      const champRes = await fetch(
+        `https://ddragon.leagueoflegends.com/cdn/${currentPatch}/data/pt_BR/champion.json`
+      );
       const champData = await champRes.json();
 
       const rawChamps = Object.values(champData.data);
@@ -375,10 +552,10 @@
           id:          c.id,
           name:        c.name,
           title:       c.title,
-          imgUrl:      `https://ddragon.leagueoflegends.com/cdn/${patch}/img/champion/${c.image.full}`,
-          classes:     (c.tags || []).map(t => t.toLowerCase()),
-          resource:    c.partype || 'None',
-          range:       rangeType(c.stats?.attackrange ?? 0),
+          imgUrl:      `https://ddragon.leagueoflegends.com/cdn/${currentPatch}/img/champion/${c.image.full}`,
+          classes:     (c.tags || []).map(tag => tag.toLowerCase()),
+          resource:    m.resource || c.partype || 'None',
+          attackType:  m.attackType || 'Ranged',
           gender:      m.gender      || '—',
           species:     m.species     || '—',
           region:      m.region      || '—',
@@ -390,7 +567,7 @@
       renderAll();
 
       document.getElementById('subtitle').textContent =
-        `${allChampions.length} campeões — Patch ${patch}`;
+        t('subtitle', allChampions.length, currentPatch);
 
       document.getElementById('loading').classList.add('hidden');
       document.getElementById('champions-grid').classList.remove('hidden');
@@ -400,38 +577,40 @@
       document.getElementById('loading').classList.add('hidden');
       const el = document.getElementById('error');
       el.classList.remove('hidden');
-      el.textContent = 'Erro ao carregar os dados. Verifique sua conexão e recarregue a página.';
+      el.textContent = t('msg.error');
     }
   }
 
   // ─── Popula os <select> dinamicamente ────────────────────
   function buildFilterOptions() {
-    const classes   = new Set();
-    const resources = new Set();
-    const genders   = new Set();
-    const species   = new Set();
-    const regions   = new Set();
-    const years     = new Set();
+    const genders = new Set();
+    const species = new Set();
+    const regions = new Set();
+    const years   = new Set();
 
     allChampions.forEach(c => {
-      c.classes.forEach(cl => classes.add(cl));
-      resources.add(c.resource);
+      c.classes.forEach(cl => classSet.add(cl));
+      resourceSet.add(c.resource);
       if (c.gender      !== '—') genders.add(c.gender);
       if (c.species     !== '—') species.add(c.species);
       if (c.region      !== '—') regions.add(c.region);
       if (c.releaseYear !== '—') years.add(c.releaseYear);
     });
 
-    populate('f-class',    [...classes].sort(),              labelClass);
-    populate('f-resource', [...resources].sort(),            labelResource);
-    populate('f-gender',   [...genders].sort());
-    populate('f-species',  [...species].sort());
-    populate('f-region',   [...regions].sort());
-    populate('f-year',     [...years].sort((a, b) => a - b), y => String(y));
+    // class (translated)
+    populate('f-class', [...classSet].sort(), labelClass, t('filter.all-m'));
+    // resource (translated)
+    populate('f-resource', [...resourceSet].sort(), labelResource, t('filter.all-m'));
+    // others (raw values, no translation)
+    populate('f-gender',  [...genders].sort(), v => v, t('filter.all-m'));
+    populate('f-species', [...species].sort(), v => v, t('filter.all-f'));
+    populate('f-region',  [...regions].sort(), v => v, t('filter.all-f'));
+    populate('f-year',    [...years].sort((a, b) => a - b), String, t('filter.all-m'));
   }
 
-  function populate(id, values, labelFn = v => v) {
+  function populate(id, values, labelFn, allLabel) {
     const sel = document.getElementById(id);
+    sel.innerHTML = `<option value="">${allLabel}</option>`;
     values.forEach(v => {
       const opt = document.createElement('option');
       opt.value = v;
@@ -440,7 +619,7 @@
     });
   }
 
-  // ─── Render inicial ───────────────────────────────────────
+  // ─── Render cards ─────────────────────────────────────────
   function renderAll() {
     const grid = document.getElementById('champions-grid');
     grid.innerHTML = '';
@@ -448,17 +627,17 @@
     allChampions.forEach(c => {
       const card = document.createElement('div');
       card.className = 'champion-card';
-      card.dataset.name     = c.name.toLowerCase();
-      card.dataset.classes  = c.classes.join(',');
-      card.dataset.resource = c.resource;
-      card.dataset.range    = c.range;
-      card.dataset.gender   = c.gender;
-      card.dataset.species  = c.species;
-      card.dataset.region   = c.region;
-      card.dataset.year     = c.releaseYear;
+      card.dataset.name      = c.name.toLowerCase();
+      card.dataset.classes   = c.classes.join(',');
+      card.dataset.resource  = c.resource;
+      card.dataset.range     = c.attackType;   // "Melee" | "Ranged"
+      card.dataset.gender    = c.gender;
+      card.dataset.species   = c.species;
+      card.dataset.region    = c.region;
+      card.dataset.year      = c.releaseYear;
 
       const classTags = c.classes
-        .map(cl => `<span class="tag">${labelClass(cl)}</span>`)
+        .map(cl => `<span class="tag" data-cls="${cl}">${labelClass(cl)}</span>`)
         .join('');
 
       card.innerHTML = `
@@ -467,21 +646,21 @@
         <div class="champ-title">${c.title}</div>
         <div class="tags">
           ${classTags}
-          <span class="tag resource">${labelResource(c.resource)}</span>
-          <span class="tag range">${c.range === 'melee' ? 'Melee' : 'Ranged'}</span>
+          <span class="tag resource" data-res="${c.resource}">${labelResource(c.resource)}</span>
+          <span class="tag range">${c.attackType}</span>
           <span class="tag year">${c.releaseYear}</span>
         </div>
         <div class="meta-rows">
           <div class="meta-row">
-            <span class="meta-label">Gênero</span>
+            <span class="meta-label" data-i18n="card.gender">${t('card.gender')}</span>
             <span class="meta-value">${c.gender}</span>
           </div>
           <div class="meta-row">
-            <span class="meta-label">Espécie</span>
+            <span class="meta-label" data-i18n="card.species">${t('card.species')}</span>
             <span class="meta-value">${c.species}</span>
           </div>
           <div class="meta-row">
-            <span class="meta-label">Região</span>
+            <span class="meta-label" data-i18n="card.region">${t('card.region')}</span>
             <span class="meta-value">${c.region}</span>
           </div>
         </div>
@@ -520,8 +699,7 @@
       if (show) visible++;
     });
 
-    document.getElementById('count').textContent =
-      `${visible} campeão${visible !== 1 ? 'ões' : ''} encontrado${visible !== 1 ? 's' : ''}`;
+    document.getElementById('count').textContent = t('count', visible);
   }
 
   function resetFilters() {
@@ -531,11 +709,30 @@
     applyFilters();
   }
 
+  // ─── Language switch ──────────────────────────────────────
+  function switchLang(lang) {
+    if (lang === currentLang) return;
+    currentLang = lang;
+
+    applyStaticStrings();
+    document.getElementById('subtitle').textContent =
+      t('subtitle', allChampions.length, currentPatch);
+
+    if (allChampions.length > 0) {
+      rebuildFilterLabels();
+      updateCardLabels();
+    }
+  }
+
   // ─── Event listeners ─────────────────────────────────────
   document.getElementById('search').addEventListener('input', applyFilters);
   ['f-class','f-resource','f-range','f-gender','f-species','f-region','f-year']
     .forEach(id => document.getElementById(id).addEventListener('change', applyFilters));
   document.getElementById('reset-btn').addEventListener('click', resetFilters);
+
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchLang(btn.dataset.lang));
+  });
 
   // ─── Start ───────────────────────────────────────────────
   init();
